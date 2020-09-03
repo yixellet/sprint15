@@ -22,7 +22,7 @@ module.exports.getUsers = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.id)
     .then((user) => {
       if (user) {
@@ -52,7 +52,7 @@ module.exports.createUser = (req, res) => {
   }
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const newName = req.body.name;
   const newAbout = req.body.about;
   User.findByIdAndUpdate(req.user._id,
@@ -68,7 +68,7 @@ module.exports.updateUser = (req, res) => {
     .catch(next);
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const newAvatar = req.body.avatar;
   User.findByIdAndUpdate(req.user._id,
     { avatar: newAvatar },
