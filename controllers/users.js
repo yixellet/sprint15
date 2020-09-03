@@ -2,10 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const secretKey = require('../secretKey');
-
-function error(res) {
-  res.status(404).send({ message: 'Пользователя с таким ID не существует' });
-}
+const NotFoundError = require('../errors/not-found-error');
 
 function createUserError(req, res, err) {
   if (err.code === 11000) {
@@ -31,10 +28,10 @@ module.exports.getUserById = (req, res) => {
       if (user) {
         res.send({ data: user });
       } else {
-        error(res);
+        throw new NotFoundError('Пользователя с таким ID не существует');
       }
     })
-    .catch(() => error(res));
+    .catch(next);
 };
 
 module.exports.createUser = (req, res) => {
@@ -65,10 +62,10 @@ module.exports.updateUser = (req, res) => {
       if (user) {
         res.send({ data: user });
       } else {
-        error(res);
+        throw new NotFoundError('Пользователя с таким ID не существует');
       }
     })
-    .catch(() => error(res));
+    .catch(next);
 };
 
 module.exports.updateAvatar = (req, res) => {
@@ -80,10 +77,10 @@ module.exports.updateAvatar = (req, res) => {
       if (user) {
         res.send({ data: user });
       } else {
-        error(res);
+        throw new NotFoundError('Пользователя с таким ID не существует');
       }
     })
-    .catch(() => error(res));
+    .catch(next);
 };
 
 module.exports.login = (req, res) => {

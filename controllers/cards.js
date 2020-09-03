@@ -1,8 +1,5 @@
 const Card = require('../models/card');
-
-function error(res) {
-  res.status(404).send({ message: 'Отсутствует карточка с таким ID' });
-}
+const NotFoundError = require('../errors/not-found-error');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -27,15 +24,15 @@ module.exports.deleteCard = (req, res) => {
             if (cardo) {
               res.send({ data: cardo });
             } else {
-              error(res);
+              throw new NotFoundError('Карточки с таким ID не существует');
             }
           })
-          .catch(() => error(res));
+          .catch(next);
       } else {
         res.status(403).send({ message: 'Удалять карточки может только их владелец' });
       }
     })
-    .catch(() => error(res));
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res) => {
@@ -44,10 +41,10 @@ module.exports.likeCard = (req, res) => {
       if (card) {
         res.send({ data: card });
       } else {
-        error(res);
+        throw new NotFoundError('Карточки с таким ID не существует');
       }
     })
-    .catch(() => error(res));
+    .catch(next);
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -56,8 +53,8 @@ module.exports.dislikeCard = (req, res) => {
       if (card) {
         res.send({ data: card });
       } else {
-        error(res);
+        throw new NotFoundError('Карточки с таким ID не существует');
       }
     })
-    .catch(() => error(res));
+    .catch(next);
 };

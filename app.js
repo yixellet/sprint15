@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { celebrate, Joi } = require('celebrate');
+const { celebrateErrors } = require('celebrate');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
@@ -23,9 +25,25 @@ mongoose.connect('mongodb://localhost:27017/mesto', {
 app.use(bodyParser());
 
 app.use('/users', auth, users);
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().pattern(new RegExp('[A-Za-z0-9]{8,}')),
+  }).unknown(true),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().pattern(new RegExp('[A-Za-z0-9]{8,}')),
+  }).unknown(true),
+}), createUser);
 app.use('/cards', auth, cards);
 app.use(error);
+
+app.use(celebrateErrors());
+
+app.use((err, req, res, next) => {
+  res.status(err.statusCode).send({ message: err.message });
+});
 
 app.listen(3000);
