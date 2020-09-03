@@ -15,7 +15,7 @@ module.exports.createCard = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (String(card.owner) === String(req.user._id)) {
@@ -35,7 +35,7 @@ module.exports.deleteCard = (req, res) => {
     .catch(next);
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (card) {
@@ -47,7 +47,7 @@ module.exports.likeCard = (req, res) => {
     .catch(next);
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (card) {
