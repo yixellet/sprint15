@@ -1,10 +1,10 @@
-# Спринт 14
+# Спринт 15
 ## Работа студента Яндекс.Практикум Котелевского К. А.
 Версия 0.0.1
 
 ### Как развернуть проект
 1. Клонируйте репозиторий на свой компьютер
-`git clone https://github.com/yixellet/sprint13.git`
+`git clone https://github.com/yixellet/sprint15.git`
 
 2. Установите [Node.js](https://nodejs.org/)
 
@@ -14,3 +14,6 @@
 4. Запустите команду для запуска сервера
 `npm run start`
 
+5. В браузере перейдите по адресу [mestokotelevsky.gq] (https://mestokotelevsky.gq/)
+
+6. Также ресурс доступен по IP 84.201.178.43
