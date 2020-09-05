@@ -1,18 +1,26 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-error');
+const CantDeleteError = require('../errors/cant-delete-error');
+const ServerError = require('../errors/server-error');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((e) => {
+      const err = new ServerError('На сервере произошла ошибка');
+      next(err);
+    });
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((e) => {
+      const err = new ServerError('На сервере произошла ошибка');
+      next(err);
+    });
 };
 
 module.exports.deleteCard = (req, res, next) => {
@@ -29,7 +37,7 @@ module.exports.deleteCard = (req, res, next) => {
           })
           .catch(next);
       } else {
-        res.status(403).send({ message: 'Удалять карточки может только их владелец' });
+        throw new CantDeleteError('Удалять карточки может только их владелец');
       }
     })
     .catch(next);

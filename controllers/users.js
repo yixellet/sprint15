@@ -4,12 +4,15 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const secretKey = require('../secretKey');
 const NotFoundError = require('../errors/not-found-error');
+const ServerError = require('../errors/server-error');
+const UserExistsError = require('../errors/user-exists-error');
+const PasswordSymbolsError = require('../errors/password-symbols-error');
 
 function createUserError(req, res, err) {
   if (err.code === 11000) {
-    return res.status(409).send({ message: 'Пользователь с таким Email уже существует' });
+    return new UserExistsError('Пользователь с таким Email уже существует');
   }
-  return res.status(500).send({ message: err.message });
+  return new ServerError('На сервере произошла ошибка');
 }
 
 function passwordValidation(password) {
@@ -17,10 +20,13 @@ function passwordValidation(password) {
   return regex.test(password);
 }
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((e) => {
+      const err = new ServerError('На сервере произошла ошибка');
+      next(err);
+    });
 };
 
 module.exports.getUserById = (req, res, next) => {
@@ -35,7 +41,7 @@ module.exports.getUserById = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email,
   } = req.body;
@@ -49,7 +55,8 @@ module.exports.createUser = (req, res) => {
       }))
       .catch((err) => createUserError(req, res, err));
   } else {
-    res.status(400).send({ message: 'Пароль должен содержать не менее 8 символов и состоять из цифр и латинских букв' });
+    const err = new PasswordSymbolsError('Пароль должен содержать не менее 8 символов и состоять из цифр и латинских букв');
+    next(err);
   }
 };
 
@@ -84,7 +91,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
@@ -92,7 +99,8 @@ module.exports.login = (req, res) => {
       res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true })
         .end();
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
+    .catch((e) => {
+      const err = new NotFoundError('Пользователь не найден');
+      next(err);
     });
 };
