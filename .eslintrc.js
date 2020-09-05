@@ -12,5 +12,6 @@ module.exports = {
     'no-underscore-dangle': 0,
     'consistent-return': 0,
     'no-unused-vars': 0,
+    'no-useless-escape': 0,
   },
 };
